@@ -1,0 +1,115 @@
+TITLE:: Voronoi
+summary:: 2D Voronoi diagram builder
+categories:: Geometry, GUI>Accessories
+
+DESCRIPTION::
+Voronoi constructs a 2D Voronoi diagram from Points. A Voronoi diagram with N points is a tessellation of a plane into N regions (or cells) where each region represents the area of the plane closest to a particular point. Typically the definition of "closest" is Euclidean distance (square root of dx^2 + dy^2). However, other formulas (such as Manhattan distance, |dx| + |dy|) may be applied.
+
+Voronoi's execution time is in direct proportion to its bounds and the number of points. This is because the distance function must be calculated for each point at each pixel. Other, faster implementations are possible; however, this would restrict the potential for a custom distance function.
+
+Colors are either supplied by the user or chosen randomly. If a 2D array of points is passed in, for each subarray of points, Voronoi will color the regions of all points in the subarray with the same color. In other words, the number of colors in the diagram is the same as the size of the points array.
+
+'pointBounds' is the bounding window from which point location values are scaled into the 'bounds' rectangle. These are also calculated automatically with a small amount of padding. They can be supplied by the user; however, be aware that using different bound ratios between pointBounds and bounds will cause stretching in the resulting image.
+
+code::
+v = Voronoi.new("Example", Rect(200,200,200,200), Array.fill(15,{Point(10.0.rand,10.0.rand)}));
+v.front;
+::
+
+This class was written by Brian Heim in June 2016. It is free to use, copy, and modify.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: name
+Name to display on window.
+
+ARGUMENT:: bounds
+Same as Window.new's bounds argument.
+
+ARGUMENT:: points
+Array of Points, or 2D Array of Points.
+
+ARGUMENT:: colors
+Array of Colors the same size as points. If nil, colors are randomly chosen.
+
+ARGUMENT:: pointBounds
+Bounding window used to scale Point locations into the window bounds. If nil, automatically calculated.
+
+ARGUMENT:: distFunc
+The distance function to use when calculating distance between a given pixel and the supplied points. If nil, Euclidean distance is used. The function is passed four arguments: x1, y1, x2, y2.
+
+METHOD:: printProgress
+Set to true to print progress updates: a counter will print every time a new set of 10 columns of pixels is processed in the calculation and display phases. Default is false.
+
+
+INSTANCEMETHODS::
+
+METHOD:: drawPoints
+Determines whether points will be drawn when the diagram is next refreshed. Default is true.
+
+METHOD:: drawRegions
+Determines whether the colored regions will be drawn when the diagram is next refreshed. Default is true.
+
+METHOD:: drawPointNumbers
+Determines whether to draw index numbers next to the points when the diagram is next refreshed. Default is false.
+
+METHOD:: pointBounds
+Returns the bounding Rect used for the points.
+
+METHOD:: pointRadius
+Determines the radius for drawn points on next refresh. Default is 2.
+
+METHOD:: points
+
+returns:: Original points passed in to Voronoi.
+
+METHOD:: distFunc
+The distance function used to calculate distance between a pixel and the given points. Euclidean distance is the default. After this function is called, the diagram will take time to recalculate all the pixels.
+
+
+EXAMPLES::
+Basic use.
+code::
+v = Voronoi.new("Example", Rect(200,200,200,200), Array.fill(15,{Point(10.0.rand,10.0.rand)}));
+v.front;
+// just the points
+v.drawRegions_(false);
+v.refresh;
+// just the regions
+v.drawRegions_(true);
+v.drawPoints_(false);
+v.refresh;
+// regions, points, and numbers
+v.drawPoints_(true);
+v.drawPointNumbers_(true);
+v.refresh;
+// big points
+v.drawPointNumbers_(false);
+v.pointRadius_(5);
+v.refresh;
+::
+
+Grouped points.
+code::
+v = Voronoi.new("Group Example", Rect(200,200,200,200), Array.fill2D(5,5,{Point(10.0.rand,10.0.rand)}));
+v.front;
+::
+
+User-supplied colors.
+code::
+v = Voronoi.new("Colors Example", Rect(200,200,200,200), Array.fill(20,{Point(10.0.rand,10.0.rand)}), Array.fill(20,{ |i| Color.gray(i/20)}));
+v.front;
+::
+
+Manhattan distance.
+code::
+f = {
+	arg x1, y1, x2, y2;
+	abs(x2-x1) + abs(y2-y1);
+};
+v = Voronoi.new("Manhattan Example", Rect(200,200,300,300), Array.fill(20,{Point(10.0.rand,10.0.rand)}), distFunc:f);
+v.front;
+::
